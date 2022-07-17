@@ -3,6 +3,7 @@
 #include "SDL_render.h"
 #include "SDL_rwops.h"
 #include "SDL_surface.h"
+#include "sprite_component.h"
 
 Game::Game() {}
 Game::~Game() {}
@@ -39,17 +40,15 @@ bool Game::Initialize() {
 
   mTickCounts = SDL_GetTicks();
 
-  // Initlization Balls
-  BallDatas data1{{200, 200}, {3.0, 2.5}};
-  mBalls.emplace_back(data1);
-  BallDatas data2{{400, 300}, {2.0, 3.5}};
-  mBalls.emplace_back(data2);
-  BallDatas data3{{700, 600}, {-2.5, 4.5}};
-  mBalls.emplace_back(data3);
-
   // Load Textures 
   mImageManager.SetRendder(mRenderer);
   mImageManager.LoadImage("sprites-cat-running.png");
+
+
+  // Add Actor
+  Actor* actor = new Actor(this);
+  SpriteComponent* sp =  new SpriteComponent(actor);
+  sp->SetTexture( mImageManager.GetTexture("sprites-cat-running.png") );
 
   return true;
 }
@@ -90,12 +89,6 @@ void Game::ProcessInput() {
     mIsRunning = false;
   }
 
-  if (state[SDL_SCANCODE_UP]) {
-    controllerPosition -= controllerSpeed;
-  }
-  if (state[SDL_SCANCODE_DOWN]) {
-    controllerPosition += controllerSpeed;
-  }
 }
 
 void Game::UpdateGame() {
@@ -133,38 +126,7 @@ void Game::UpdateGame() {
   }
   mPendingActors.clear();
 
-  // Limit controllerPosition
-  controllerPosition =
-      SDL_max(controllerPosition, thickness + controllerHeight * .5f);
-  controllerPosition =
-      SDL_min(controllerPosition, 768 - thickness - controllerHeight * .5f);
 
-  // Check Collisions
-
-  for (BallDatas &ballData : mBalls) {
-    if (ballData.position.x <= controllerThickness + ballSize * 0.5f) {
-      if (ballData.position.y > controllerPosition - controllerHeight * 0.5f &&
-          ballData.position.y < controllerPosition + controllerHeight * 0.5f) {
-        ballData.direction.x *= -1;
-      } else {
-        mGameover = true;
-      }
-    }
-    if (ballData.position.x >= 1024 - thickness - ballSize * 0.5f) {
-      ballData.direction.x *= -1;
-    }
-
-    if (ballData.position.y <= thickness + ballSize * 0.5f) {
-      ballData.direction.y *= -1;
-    }
-    if (ballData.position.y >= 768 - thickness - ballSize * 0.5f) {
-      ballData.direction.y *= -1;
-    }
-
-    // Update ball Position
-    ballData.position.x += ballData.direction.x * ballSpeed * deltaTime;
-    ballData.position.y += ballData.direction.y * ballSpeed * deltaTime;
-  }
 
   // SDL Button API Use Example
   // if ((state & SDL_BUTTON_LMASK) != 0) {
@@ -187,43 +149,16 @@ void Game::GenerateOutput() {
   }
 
   // Draw Background and Wall
-  SDL_Rect topWall{0, 0, 1024, thickness};
-  SDL_Rect bottomWall{1024 - thickness, 0, thickness, 1024};
-  SDL_Rect leftWall{0, 768 - thickness, 1024, thickness};
 
-  SDL_Color wallColor{85, 0, 0, 255};
   SDL_Color backgroundColor{25, 25, 25, 255};
   SDL_SetRenderDrawColor(mRenderer, backgroundColor.r, backgroundColor.g,
                          backgroundColor.b, backgroundColor.a);
   SDL_RenderClear(mRenderer);
-  SDL_SetRenderDrawColor(mRenderer, wallColor.r, wallColor.g, wallColor.b,
-                         wallColor.a);
-  SDL_RenderFillRect(mRenderer, &topWall);
-  SDL_RenderFillRect(mRenderer, &bottomWall);
-  SDL_RenderFillRect(mRenderer, &leftWall);
 
-  // Draw Controller
-  SDL_Color controllerColor{100, 150, 150, 255};
-  SDL_SetRenderDrawColor(mRenderer, controllerColor.r, controllerColor.g,
-                         controllerColor.b, controllerColor.a);
-  SDL_Rect controller{
-      0, static_cast<int>(controllerPosition - controllerHeight * 0.5f),
-      static_cast<int>(controllerThickness),
-      static_cast<int>(controllerHeight)};
-
-  SDL_RenderFillRect(mRenderer, &controller);
-  // Draw Ball
-
-  for (BallDatas &ballData : mBalls) {
-    SDL_Color ballColor{100, 100, 100, 255};
-    SDL_SetRenderDrawColor(mRenderer, ballColor.r, ballColor.g, ballColor.b,
-                           ballColor.a);
-    SDL_Rect ball{static_cast<int>(ballData.position.x - ballSize * 0.5),
-                  static_cast<int>(ballData.position.y - ballSize * 0.5),
-                  static_cast<int>(ballSize), static_cast<int>(ballSize)};
-    SDL_RenderFillRect(mRenderer, &ball);
+  for(auto &iter : mSpriteManager)
+  {
+    iter->Draw(mRenderer);
   }
-
   // Draw FPS
   SDL_Color Color = {0, 200, 50};
 

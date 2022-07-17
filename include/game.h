@@ -49,20 +49,6 @@ private:
   float mFPS{0.f};
   int mFrameCounts{0};
 
-  int thickness{10};
-
-  // Ball Variables
-  float ballSize{20.f};
-  // Vector2 ballPosition{200.f, 200.f};
-  // Vector2 ballDirection{1.0f, 0.5f};
-  float ballSpeed = 100.f;
-  std::vector<BallDatas> mBalls;
-
-  float controllerPosition = 768.f * .5f;
-  float controllerThickness = 10.f;
-  float controllerHeight = 80.f;
-  float controllerSpeed = 5.f;
-
   // Fonts
   TTF_Font *font;
   SDL_Surface *surfaceMessage;

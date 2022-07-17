@@ -10,7 +10,7 @@ public:
   ImageManager();
   ~ImageManager();
   bool LoadImage(std::string fileName);
-  SDL_Texture *GetTexture(std::string &key) {
+  SDL_Texture *GetTexture(std::string key) {
     auto search = mTexManager.find(key);
     if (search != mTexManager.end()) {
       return mTexManager[key];
