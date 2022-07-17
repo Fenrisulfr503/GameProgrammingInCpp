@@ -7,6 +7,7 @@
 #include <vector>
 
 #include "data.h"
+#include "sprite_component.h"
 
 class Actor;
 class BallDatas
@@ -29,12 +30,14 @@ public:
   void Shutdown();
 
   void AddActor(Actor* actor);
-
+  void AddSprite(SpriteComponent* sprite);
 private:
   // Helper functions for the game loop
   void ProcessInput();
   void UpdateGame();
   void GenerateOutput();
+
+
 
   SDL_Window *mWindow;
   SDL_Renderer *mRenderer;
@@ -72,4 +75,8 @@ private:
 
   // Texture Manager
   ImageManager mImageManager;
+
+  //SpriteComponents Manager
+  std::vector<SpriteComponent*> mSpriteManager;
+
 };

@@ -23,7 +23,7 @@ public:
   EState GetState();
   Vector2 GetTransform();
   float GetScale();
-
+  Game* GetGame() const { return mGame;}
   // Add/ Remove Components
   void AddComponent(Component *component);
   void RemoveComponent(Component *component);

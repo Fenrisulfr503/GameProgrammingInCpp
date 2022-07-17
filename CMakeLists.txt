@@ -12,6 +12,7 @@ add_executable(
     source/actor.cpp
     source/component.cpp
     source/image_manager.cpp
+    source/sprite_component.cpp
     )
 
 target_link_directories(

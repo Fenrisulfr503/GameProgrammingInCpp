@@ -50,7 +50,7 @@ bool Game::Initialize() {
   // Load Textures 
   mImageManager.SetRendder(mRenderer);
   mImageManager.LoadImage("sprites-cat-running.png");
-  
+
   return true;
 }
 
@@ -252,4 +252,10 @@ void Game::AddActor(Actor *actor) {
   } else {
     mActors.emplace_back(actor);
   }
+}
+
+void Game::AddSprite(SpriteComponent* sprite)
+{
+  mSpriteManager.emplace_back(sprite);
+  
 }
