@@ -30,8 +30,8 @@ public:
 
 private:
   EState mState;
-  Vector2 mTransform{500.0, 500.0};
-  float mScale{0.25f};
+  Vector2 mTransform{0.0, 0.0};
+  float mScale{1.f};
 
   std::vector<Component *> mComponents;
   Game *mGame;

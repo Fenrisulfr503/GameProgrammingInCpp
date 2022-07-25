@@ -13,6 +13,8 @@ add_executable(
     source/component.cpp
     source/image_manager.cpp
     source/sprite_component.cpp
+    source/animsprite_component.cpp
+    source/BGSprite_component.cpp
     )
 
 target_link_directories(

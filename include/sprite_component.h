@@ -15,8 +15,9 @@ public:
   int GetTexWidth() const { return mTexWidth; }
 
 protected:
-    SDL_Texture* mTex;
-    int mDrawOrder;
-    int mTexHeight;
-    int mTexWidth;
+  SDL_Texture *mTex;
+  int mDrawOrder;
+  int mTexHeight;
+  int mTexWidth;
+
 };

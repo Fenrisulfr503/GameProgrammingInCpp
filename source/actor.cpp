@@ -21,11 +21,13 @@ void Actor::UpdateActor(float deltaTime) {}
 
 void Actor::AddComponent(Component *component) {
   for (auto it = mComponents.begin(); it != mComponents.end(); ++it) {
-    if (component->GetUpdateOrder() < (*it)->GetUpdateOrder()) {
+    if (component->GetUpdateOrder() <= (*it)->GetUpdateOrder()) {
       mComponents.insert(it, component);
-      break;
+      return;
     }
   }
+  mComponents.emplace_back( component );
+
 }
 
 void Actor::RemoveComponent(Component *component) {

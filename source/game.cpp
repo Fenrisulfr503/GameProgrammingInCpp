@@ -4,6 +4,7 @@
 #include "SDL_rwops.h"
 #include "SDL_surface.h"
 #include "sprite_component.h"
+#include "animsprite_component.h"
 
 Game::Game() {}
 Game::~Game() {}
@@ -29,9 +30,7 @@ bool Game::Initialize() {
   // Font
   TTF_Init();
   font = TTF_OpenFont("Comfortaa-Light.ttf", 30);
-
   SDL_Color White = {0, 200, 50};
-
   // as TTF_RenderText_Solid could only be used on
   // SDL_Surface then you have to create the surface first
   surfaceMessage = TTF_RenderText_Blended(font, "GAME OVER!", White);
@@ -40,20 +39,40 @@ bool Game::Initialize() {
 
   mTickCounts = SDL_GetTicks();
 
-  // Load Textures 
+  // Load Textures
   mImageManager.SetRendder(mRenderer);
   mImageManager.LoadImage("sprites-cat-running.png");
-
+  mImageManager.LoadImage("brush.png");
 
   // Add Actor
-  Actor* actor = new Actor(this);
-  SpriteComponent* sp =  new SpriteComponent(actor);
-  sp->SetTexture( mImageManager.GetTexture("sprites-cat-running.png") );
+  Actor *actor = new Actor(this);
+  actor->SetTransform({1024.0 / 2, 768.0 / 2});
+  actor->SetScale(.4f);
+
+  this->AddActor(actor);
+
+  AnimSpriteComponent *sp = new AnimSpriteComponent(actor);
+  sp->SetTexture(mImageManager.GetTexture("sprites-cat-running.png"));
+  sp->SetFps( 24 );
+  sp->SetSliceNumber( 4, 2 );
+
+  Actor *actor1 = new Actor(this);
+  actor1->SetTransform({1024.0 / 2, 768.0 / 2});
+  this->AddActor(actor1);
+  // actor1->SetTransform({100, 200});
+  SpriteComponent *sp1 = new SpriteComponent(actor1, 20);
+  sp1->SetTexture(mImageManager.GetTexture("brush.png"));
 
   return true;
 }
 
 void Game::Shutdown() {
+
+  // Release actor memory
+  for (auto it = mActors.begin(); it != mActors.end(); ++it) {
+    delete (*it);
+  }
+
   SDL_DestroyRenderer(mRenderer);
   SDL_DestroyWindow(mWindow);
 
@@ -88,7 +107,6 @@ void Game::ProcessInput() {
   if (state[SDL_SCANCODE_ESCAPE]) {
     mIsRunning = false;
   }
-
 }
 
 void Game::UpdateGame() {
@@ -121,12 +139,10 @@ void Game::UpdateGame() {
   mIsUpdateRunning = false;
 
   // Move Pending Actor to Actor
-  for (auto &it : mActors) {
+  for (auto &it : mPendingActors) {
     mActors.emplace_back(it);
   }
   mPendingActors.clear();
-
-
 
   // SDL Button API Use Example
   // if ((state & SDL_BUTTON_LMASK) != 0) {
@@ -155,8 +171,7 @@ void Game::GenerateOutput() {
                          backgroundColor.b, backgroundColor.a);
   SDL_RenderClear(mRenderer);
 
-  for(auto &iter : mSpriteManager)
-  {
+  for (auto &iter : mSpriteManager) {
     iter->Draw(mRenderer);
   }
   // Draw FPS
@@ -189,8 +204,14 @@ void Game::AddActor(Actor *actor) {
   }
 }
 
-void Game::AddSprite(SpriteComponent* sprite)
-{
+void Game::AddSprite(SpriteComponent *sprite) {
+
+  for (auto it = mSpriteManager.begin(); it != mSpriteManager.end(); ++it) {
+
+    if (sprite->GetDrawOrder() < (*it)->GetDrawOrder()) {
+      mSpriteManager.insert(it, sprite);
+      return;
+    }
+  }
   mSpriteManager.emplace_back(sprite);
-  
 }
